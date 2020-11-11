@@ -64,7 +64,10 @@ Flink web GUI:
 
 # Prometheus
 Prometheus helm chart  
-https://github.com/helm/charts/tree/master/stable/prometheus
+##https://github.com/helm/charts/tree/master/stable/prometheus
+>> https://github.com/prometheus-community/helm-charts
+
+>> helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
 아래와 같이 annotation 을 넣어줘야 metrics를 프로메테우스 서버에서 pull 이 가능해집니다.
 
@@ -75,10 +78,14 @@ https://github.com/helm/charts/tree/master/stable/prometheus
 Prometheus web console:
 
     kubectl port-forward ${prometheus-pod-name} 9090 -n monitoring
+    
+    >> export POD_NAME=$(kubectl get pods --namespace monitoring -l "app=prometheus,component=server" -o jsonpath="{.items[0].metadata.name}")
+    >> kubectl --namespace monitoring port-forward $POD_NAME 9090
 
 # Grafana
 Grafana helm chart  
-https://github.com/helm/charts/tree/master/stable/grafana
+https://github.com/grafana/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
 
 Kafka dashboard:  
 https://github.com/confluentinc/cp-helm-charts/blob/master/grafana-dashboard/confluent-open-source-grafana-dashboard.json
@@ -145,11 +152,29 @@ cd kafka
 helm install kafka-minik --namespace kafka -f values.yaml confluentinc/cp-helm-charts
 
 # Install flink
-kubectl apply -f ./flink
+###kubectl apply -f ./flink
 
 # Install prometheus + grafana
-helm install prometheus-minik --namespace monitoring stable/prometheus
-helm install --name grafana-minik --namespace monitoring stable/grafana
+helm install prometheus-minik --namespace monitoring prometheus-community/prometheus
+helm install  grafana-minik --namespace monitoring grafana/grafana
+1. Get your 'admin' user password by running:
+
+   kubectl get secret --namespace monitoring grafana-minik -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+2. The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
+
+   grafana-minik.monitoring.svc.cluster.local
+
+   Get the Grafana URL to visit by running these commands in the same shell:
+
+     export POD_NAME=$(kubectl get pods --namespace monitoring -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana-minik" -o jsonpath="{.items[0].metadata.name}")
+     kubectl --namespace monitoring port-forward $POD_NAME 3000
+
+3. Login with the password from step 1 and the username: admin
+#################################################################################
+######   WARNING: Persistence is disabled!!! You will lose your data when   #####
+######            the Grafana pod is terminated.                            #####
+#################################################################################
 
 # Install Minio(s3 alternative)
 helm install --name minio-minik --namespace minio --set accessKey=k8sdemo,secretKey=k8sdemo123 stable/minio
