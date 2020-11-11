@@ -129,7 +129,7 @@ sudo mv ./kubectl /usr/local/bin/kubectl
 
 # Install helm and update repo
 brew install kubernetes-helm
-helm init --history-max 200
+## helm init --history-max 200 => depricated from 3.0 (no Tiller...yeah~)
 helm repo update
 
 # Create all namespaces in k8s
@@ -142,7 +142,7 @@ kubectl create namespace minio
 helm repo add confluentinc https://confluentinc.github.io/cp-helm-charts/
 helm repo update
 cd kafka
-helm install --name kafka-minik --namespace kafka -f values.yaml confluentinc/cp-helm-charts
+helm install kafka-minik --namespace kafka -f values.yaml confluentinc/cp-helm-charts
 
 # Install flink
 kubectl apply -f ./flink
