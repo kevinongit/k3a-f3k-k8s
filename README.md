@@ -148,7 +148,7 @@ helm install kafka-minik --namespace kafka -f values.yaml confluentinc/cp-helm-c
 kubectl apply -f ./flink
 
 # Install prometheus + grafana
-helm install --name prometheus-minik --namespace monitoring stable/prometheus
+helm install prometheus-minik --namespace monitoring stable/prometheus
 helm install --name grafana-minik --namespace monitoring stable/grafana
 
 # Install Minio(s3 alternative)
